@@ -5,26 +5,91 @@ date: "May 16, 2016"
 output: html_document
 ---
 
+<style type="text/css">
+  h1 {
+   color: #1F3A93
+  }
+  h2 { 
+   color: #3399ff;		
+  }
+  h3 { 
+   color: #446CB3;		
+  }
+  body, td {
+     font-size: 14px;
+  }
+  code.r{
+    font-size: 14px;
+  }
+  pre {
+    font-size: 12px
+  }
+</style>
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
 ```
 
-## R Markdown
+#Overview
+One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, I will use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#Executive Summary
+I use decision trees and random forest machine learning algorithms to predict the type of exercise. After downloading the training and testing sets from the internet and performing some simple exploratory data analysis I see there are many columns that are mostly either blank or NAs. I split the provided training data set into a training `myTraining` and testing `myTesting` data set. I will use these data sets to perform my machine learning algorithms. Next I remove all columns from `myTraining` and `myTesting` data sets that are predominately NAs. This will improve my models. After cleaning up the data I first performed decision trees machine learning. 
+My most successfull decision tree model produce an 86% accuracy got _____ right
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Next I used random forests machine learning that produced an ____ % accuracy and got ____ right
+```{r}
 
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+***
 
-You can also embed plots, for example:
+#Data Processing
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Load Library Packages
+```{r, eval=TRUE}
+## Load Library Packages
+library(ggplot2)
+library(dplyr)
+library(caret)
+library(rattle)
+library(rpart)
+library(rpart.plot)
+library(e1071)
+library(randomForest)
+library(gbm)
+library(RCurl)
+library(MASS)
+library(knitr)
+
+## Download the data
+trainingURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testingURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+
+trainingPath <- "pml-training.csv"
+testingPath <- "pml-testing.csv"
+
+## Download the training data
+if (url.exists(trainingURL)) {
+    if (!file.exists(trainingPath)) {
+        download.file(trainingURL, method = "libcurl", destfile = trainingPath)
+    }
+}
+
+## Download the testing data
+if (url.exists(testingURL)) {
+    if (!file.exists(testingPath)) {
+        download.file(testingURL, method = "libcurl", destfile = testingPath)
+    }
+}
+
+## Load the data into R
+training <- read.csv(trainingPath, header = TRUE, sep = ",", na.strings = c("", "NA"), fill = TRUE,
+                     stringsAsFactors = TRUE)
+testing <- read.csv(testingPath, header = TRUE, sep = ",", na.strings = c("", "NA"), fill = TRUE,
+                    stringsAsFactors = TRUE)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
