@@ -187,5 +187,69 @@ for (p in common) {
 
 ***
 
+#Machine Learning Algorithm: Decision Trees
 
+###Using the `train()` function
+```{r}
+treesModel <- train(classe ~ ., data = myTraining, method = "rpart")
+# print fancy decision tree
+rattle::fancyRpartPlot(treesModel$finalModel)
+## Prediction
+pred.trees.train <- predict(treesModel, myTesting)
+## Confusion matrix
+options(scipen = 999) # disables printing scientific notation
+# Out of sample error
+confusionMatrix(pred.trees.train, myTesting$classe)$table
+# Accuracy
+round(confusionMatrix(pred.trees.train, myTesting$classe)$overall, digits = 5)
+```
+> Analysis:  
+> Ouch 60% accuracy!
+
+###Using the `rpart()` function
+```{r}
+rpartModel <- rpart(classe ~ ., data = myTraining, method = "class")
+# print fancy decision tree
+fancyRpartPlot(rpartModel)
+## Prediction
+pred.trees.rpart <- predict(rpartModel, myTesting, type = "class")
+## Confusion Matrix
+# Out of sample error
+confusionMatrix(pred.trees.rpart, myTesting$classe)$table
+# Accuracy
+confusionMatrix(pred.trees.rpart, myTesting$classe)$overall
+```
+> Analysis:  
+> A much better accuracy of 86%. Apparently, the `rpart()` function is vastly superior to the `train()` function as it relates to decision trees machine learning algorithms. But lets see if we can do better with random forest.
+
+#Machine Learning Algorithm: Random Forests
+
+###Using the `train()` function
+```{r}
+rf.model <- train(classe ~ ., data = myTraining, method = "rf",
+                  trControl = trainControl(method = "cv", number = 10))
+## Prediction
+pred.rf.train <- predict(rf.model, myTesting)
+## Confusion matrix
+# Out of sample error
+confusionMatrix(pred.rf.train, myTesting$classe)$table
+# Accuracy
+confusionMatrix(pred.rf.train, myTesting$classe)$overall
+```
+> Analysis:  
+> 
+
+###Using the `randomForest()` function
+```{r}
+modelRandFor <- randomForest(classe ~ ., data = myTraining)
+## Prediction
+pred.rf.randFor <- predict(modelRandFor, myTesting)
+## Confustion Matrix
+# Out of sample error
+confusionMatrix(pred.rf.randFor, myTesting$classe)$table
+# Accuracy
+confusionMatrix(pred.rf.randFor, myTesting$classe)$overall
+```
+> Analysis:  
+> 
 
