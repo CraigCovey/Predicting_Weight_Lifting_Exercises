@@ -46,7 +46,7 @@ Next I used random forests machine learning that produced an ____ % accuracy and
 
 #Data Processing
 
-Load Library Packages
+add commentary .....
 ```{r, eval=TRUE}
 ## Load Library Packages
 library(ggplot2)
@@ -90,6 +90,102 @@ testing <- read.csv(testingPath, header = TRUE, sep = ",", na.strings = c("", "N
                     stringsAsFactors = TRUE)
 ```
 
+***
+
+#Exploratory Data Analysis
+
+Use glimpse() function from the dplyr package to inspect data. I did not include output for report brevity.
+```{r, eval=FALSE}
+glimpse(training)
+```
+```{r}
+## Find number of subjects and classes
+table(training[, c("user_name", "classe")])
+```
+> Analysis:  
+>
+
+***
+
+#Data Transformation
+
+add commentary ....
+
+```{r}
+### Partioning the training set
+indexTrain <- createDataPartition(y = training$classe, p = 0.7, list = FALSE)
+myTraining <- training[indexTrain, ]
+myTesting <- training[-indexTrain, ]
+
+### Training Data Set
+
+## Remove the first column. It is not needed it is just the row number
+myTraining <- myTraining[ ,-1]
+
+## Count the number of NAs in each column of the training set
+countTrainNAs <- c()
+for(i in 1:dim(myTraining)[2]) {
+    countTrainNAs <- append(countTrainNAs, sum( is.na( myTraining[ ,i])))
+}
+
+## Remove columns from training set that have NAs
+for(j in dim(myTraining)[2]:1) {
+    if (countTrainNAs[j] > 1) {
+        myTraining <- myTraining[ , -j]
+    }
+}
+
+## Now, do the exact same thing to the myTesting data set
+myTesting <- myTesting[, -1]
+
+countTestNAs <- c()
+for(i in 1:dim(myTesting)[2]) {
+    countTestNAs <- append(countTestNAs, sum( is.na( myTesting[ ,i])))
+}
+
+## Remove columns from testing set that have NAs
+for(j in dim(myTesting)[2]:1) {
+    if (countTestNAs[j] > 1) {
+        myTesting <- myTesting[ , -j]
+    }
+}
+
+## Repeat the same process for the testing set
+
+# Remove first column which is a row number column
+testing <- testing[, -1]
+
+countTestNAs <- c()
+for(i in 1:dim(testing)[2]) {
+    countTestNAs <- append(countTestNAs, sum( is.na( testing[ ,i])))
+}
+
+## Remove columns from testing set that have NAs
+for(j in dim(testing)[2]:1) {
+    if (countTestNAs[j] == 20) {
+        testing <- testing[ , -j]
+    }
+}
+
+dim(myTraining)
+dim(myTesting)
+dim(testing)
+```
+
+add commentary ...
+
+```{r}
+common <- intersect(names(myTraining), names(testing))
+for (p in common) {
+    if (class(myTraining[[p]]) == "factor") {
+        levels(testing[[p]]) <- levels(myTraining[[p]])
+    }
+}
+```
+> Analysis:  
+>
+
+***
 
 
 

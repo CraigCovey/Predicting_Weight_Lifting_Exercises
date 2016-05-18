@@ -100,7 +100,7 @@ img {
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data Processing</h1>
-<p>Load Library Packages</p>
+<p>add commentary …..</p>
 <pre class="r"><code>## Load Library Packages
 library(ggplot2)
 library(dplyr)
@@ -141,6 +141,102 @@ training &lt;- read.csv(trainingPath, header = TRUE, sep = &quot;,&quot;, na.str
                      stringsAsFactors = TRUE)
 testing &lt;- read.csv(testingPath, header = TRUE, sep = &quot;,&quot;, na.strings = c(&quot;&quot;, &quot;NA&quot;), fill = TRUE,
                     stringsAsFactors = TRUE)</code></pre>
+<hr />
+</div>
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory Data Analysis</h1>
+<p>Use glimpse() function from the dplyr package to inspect data. I did not include output for report brevity.</p>
+<pre class="r"><code>glimpse(training)</code></pre>
+<pre class="r"><code>## Find number of subjects and classes
+table(training[, c(&quot;user_name&quot;, &quot;classe&quot;)])</code></pre>
+<pre><code>##           classe
+## user_name     A    B    C    D    E
+##   adelmo   1165  776  750  515  686
+##   carlitos  834  690  493  486  609
+##   charles   899  745  539  642  711
+##   eurico    865  592  489  582  542
+##   jeremy   1177  489  652  522  562
+##   pedro     640  505  499  469  497</code></pre>
+<blockquote>
+<p>Analysis:</p>
+</blockquote>
+<hr />
+</div>
+<div id="data-transformation" class="section level1">
+<h1>Data Transformation</h1>
+<p>add commentary ….</p>
+<pre class="r"><code>### Partioning the training set
+indexTrain &lt;- createDataPartition(y = training$classe, p = 0.7, list = FALSE)
+myTraining &lt;- training[indexTrain, ]
+myTesting &lt;- training[-indexTrain, ]
+
+### Training Data Set
+
+## Remove the first column. It is not needed it is just the row number
+myTraining &lt;- myTraining[ ,-1]
+
+## Count the number of NAs in each column of the training set
+countTrainNAs &lt;- c()
+for(i in 1:dim(myTraining)[2]) {
+    countTrainNAs &lt;- append(countTrainNAs, sum( is.na( myTraining[ ,i])))
+}
+
+## Remove columns from training set that have NAs
+for(j in dim(myTraining)[2]:1) {
+    if (countTrainNAs[j] &gt; 1) {
+        myTraining &lt;- myTraining[ , -j]
+    }
+}
+
+## Now, do the exact same thing to the myTesting data set
+myTesting &lt;- myTesting[, -1]
+
+countTestNAs &lt;- c()
+for(i in 1:dim(myTesting)[2]) {
+    countTestNAs &lt;- append(countTestNAs, sum( is.na( myTesting[ ,i])))
+}
+
+## Remove columns from testing set that have NAs
+for(j in dim(myTesting)[2]:1) {
+    if (countTestNAs[j] &gt; 1) {
+        myTesting &lt;- myTesting[ , -j]
+    }
+}
+
+## Repeat the same process for the testing set
+
+# Remove first column which is a row number column
+testing &lt;- testing[, -1]
+
+countTestNAs &lt;- c()
+for(i in 1:dim(testing)[2]) {
+    countTestNAs &lt;- append(countTestNAs, sum( is.na( testing[ ,i])))
+}
+
+## Remove columns from testing set that have NAs
+for(j in dim(testing)[2]:1) {
+    if (countTestNAs[j] == 20) {
+        testing &lt;- testing[ , -j]
+    }
+}
+
+dim(myTraining)</code></pre>
+<pre><code>## [1] 13737    59</code></pre>
+<pre class="r"><code>dim(myTesting)</code></pre>
+<pre><code>## [1] 5885   59</code></pre>
+<pre class="r"><code>dim(testing)</code></pre>
+<pre><code>## [1] 20 59</code></pre>
+<p>add commentary …</p>
+<pre class="r"><code>common &lt;- intersect(names(myTraining), names(testing))
+for (p in common) {
+    if (class(myTraining[[p]]) == &quot;factor&quot;) {
+        levels(testing[[p]]) &lt;- levels(myTraining[[p]])
+    }
+}</code></pre>
+<blockquote>
+<p>Analysis:</p>
+</blockquote>
+<hr />
 </div>
 
 
