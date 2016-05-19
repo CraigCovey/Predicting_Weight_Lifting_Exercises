@@ -25,11 +25,13 @@ output: html_document
     font-size: 12px
   }
   img {
-    width: 150px;
-    height: 250px;
     display: block;
     margin-left: auto;
     margin-right: auto;
+  }
+  img[alt="sensors"] {
+    width: 150px;
+    height: 250px;
   }
 </style>
 
@@ -40,7 +42,7 @@ knitr::opts_chunk$set(cache = TRUE)
 #Overview
 One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify _how well_ they do it. In this project, I will use machine learning and data from accelerometers on the belt, forearm, arm, and dumbell to predict the manner in which they did the exercise. Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: one was the correct exercise while the other four classes correspond to common mistakes.
 More information on the dataset and experiment can be found [here](http://groupware.les.inf.puc-rio.br/har): see the section on the Weight Lifting Exercise Dataset. This report will use the R programming language for all machine learning applications.  
-![img](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png) 
+![sensors](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png) 
 
 #Executive Summary
 In this report I experimented with two machine learning algorithms to train my model: _decision trees_ and _random forest_. I started with decision trees because it is straighforward and easy to understand. I evaluated decision trees with two different functions: the `train()` function and the `rpart()` function. Surprisingly, there was a significant difference between the two decision tree functions.
@@ -242,7 +244,7 @@ confusionMatrix(pred.trees.train, myTesting$classe)$table
 round(confusionMatrix(pred.trees.train, myTesting$classe)$overall, digits = 5)
 ```
 > Analysis:  
-> Ouch 50% accuracy!
+> Ouch 49% accuracy!
 
 ###Using the `rpart()` function
 ```{r}
@@ -258,7 +260,7 @@ confusionMatrix(pred.trees.rpart, myTesting$classe)$table
 confusionMatrix(pred.trees.rpart, myTesting$classe)$overall
 ```
 > Analysis:  
-> A much better accuracy of 86%. Apparently, the `rpart()` function is vastly superior to the `train()` function as it relates to decision trees machine learning algorithms. But lets see if we can do better with random forest.
+> A much better accuracy of 87%. Apparently, the `rpart()` function is vastly superior to the `train()` function as it relates to decision trees machine learning algorithms. But lets see if we can do better with random forest.
 
 #Machine Learning Algorithm: Random Forests
 
@@ -275,7 +277,7 @@ confusionMatrix(pred.rf.train, myTesting$classe)$table
 confusionMatrix(pred.rf.train, myTesting$classe)$overall
 ```
 > Analysis:  
-> The random forest `train()` function is vastly superior than the decision tree model. It only misclassified 4 classes and had an accuracy of 99.93%. Let see how the `randomForest()` function performs.
+> The random forest `train()` function is vastly superior than the decision tree model. It only misclassified 6 classes and had an accuracy of 99.90%. Let see how the `randomForest()` function performs.
 
 ###Using the `randomForest()` function
 ```{r}
@@ -289,13 +291,13 @@ confusionMatrix(pred.rf.randFor, myTesting$classe)$table
 confusionMatrix(pred.rf.randFor, myTesting$classe)$overall
 ```
 > Analysis:  
-> The `randomForest()` performed very well with 6 misclassification and an accuracy of 99.90%. The _accuracy percent change_ from the random forest `train()` function to the `randomForest()` function was `-0.0003398471%`. 
+> The `randomForest()` performed very well with 12 misclassification and an accuracy of 99.80%. The _accuracy percent change_ from the random forest `train()` function to the `randomForest()` function was `-0.0003398471%`. 
 
 ***
 
 #Final Prediction: Testing
 The random forest machine model was vastly superior to the decision trees model. And the two random forest models performed essentially the same.  
-However, when it came to actually predicting on the `testing` data set the `train()` misclassified several of the classes.
+**However, when it came to actually predicting on the `testing` data set the `train()` misclassified several of the classes.**
 ```{r}
 pred.final.tr <- predict(rf.model, newdata = testing)
 print(pred.final.tr)
