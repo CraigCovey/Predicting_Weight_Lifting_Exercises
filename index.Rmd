@@ -1,5 +1,5 @@
 ---
-title: "Practical Machine Learning Course Project"
+title: "Practical Machine Learning Course Project - Predicting Weight Lifting Exercises"
 author: "Craig Covey"
 date: "May 16, 2016"
 output: html_document
@@ -24,6 +24,13 @@ output: html_document
   pre {
     font-size: 12px
   }
+  img {
+    width: 150px;
+    height: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 </style>
 
 ```{r setup, include=FALSE}
@@ -31,15 +38,38 @@ knitr::opts_chunk$set(cache = TRUE)
 ```
 
 #Overview
-One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, I will use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify _how well_ they do it. In this project, I will use machine learning and data from accelerometers on the belt, forearm, arm, and dumbell to predict the manner in which they did the exercise. Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: one was the correct exercise while the other four classes correspond to common mistakes.
+More information on the dataset and experiment can be found [here](http://groupware.les.inf.puc-rio.br/har): see the section on the Weight Lifting Exercise Dataset. This report will use the R programming language for all machine learning applications.  
+![img](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png) 
 
 #Executive Summary
-I use decision trees and random forest machine learning algorithms to predict the type of exercise. After downloading the training and testing sets from the internet and performing some simple exploratory data analysis I see there are many columns that are mostly either blank or NAs. I split the provided training data set into a training `myTraining` and testing `myTesting` data set. I will use these data sets to perform my machine learning algorithms. Next I remove all columns from `myTraining` and `myTesting` data sets that are predominately NAs. This will improve my models. After cleaning up the data I first performed decision trees machine learning. 
-My most successfull decision tree model produce an 86% accuracy got _____ right
+In this report I experimented with two machine learning algorithms to train my model: _decision trees_ and _random forest_. I started with decision trees because it is straighforward and easy to understand. I evaluated decision trees with two different functions: the `train()` function and the `rpart()` function. Surprisingly, there was a significant difference between the two decision tree functions.
+```{r, eval=TRUE, echo=FALSE}
+table_1 <- matrix(c(2942, 5885, 0.49992, 5092, 5885, 0.8652506), ncol = 3, byrow = TRUE)
+colnames(table_1) <- c("Correct", "Total", "Accuracy")
+rownames(table_1) <- c("train()", "rpart()")
+table_1 <- as.table(table_1)
+kable(table_1)
+```
 
-Next I used random forests machine learning that produced an ____ % accuracy and got ____ right
-```{r}
+In an effort to improve the model I tried a random forest machine learning algorithm. Random forests are versatile, robust and accurate algorithms capable of performing both regression and classification tasks. The differnce between the `train()` and `randomForest()` functions were miniscule.
 
+```{r, eval=TRUE, echo=FALSE}
+table_2 <- matrix(c(5881, 5885, 0.9993203, 5879, 5885, 0.9989805), ncol = 3, byrow = TRUE)
+colnames(table_2) <- c("Correct", "Total", "Accuracy")
+rownames(table_2) <- c("train()", "rpart()")
+table_2 <- as.table(table_2)
+kable(table_2)
+```
+
+I decided to use the random forest algorithm with the train() function to predict the twenty test cases provided by the class. The final result predicted all twenty exercises classes correctly.
+
+```{r, eval=TRUE, echo=FALSE}
+table_3 <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, "B",  "A",  "B",  "A",  "A",  "E",  "D",  "B",  "A",  "A",  "B",  "C",  "B",  "A",  "E",  "E",  "A",  "B",  "B",  "B"), ncol = 20, byrow = TRUE)
+colnames(table_3) <- c("_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_",  "_")
+rownames(table_3) <- c("Case", "Output")
+table_3 <- as.table(table_3)
+kable(table_3, caption = "Final Prediction")
 ```
 
 ***
@@ -204,7 +234,7 @@ confusionMatrix(pred.trees.train, myTesting$classe)$table
 round(confusionMatrix(pred.trees.train, myTesting$classe)$overall, digits = 5)
 ```
 > Analysis:  
-> Ouch 60% accuracy!
+> Ouch 50% accuracy!
 
 ###Using the `rpart()` function
 ```{r}
@@ -251,5 +281,13 @@ confusionMatrix(pred.rf.randFor, myTesting$classe)$table
 confusionMatrix(pred.rf.randFor, myTesting$classe)$overall
 ```
 > Analysis:  
-> 
+> ... The _accuracy percent change_ from the random forest `train()` function to the `randomForest()` function was `-0.0003398471%`.
+
+
+#Final Prediction: Testing
+```{r}
+pred.final <- predict(modelRandFor, newdata = testing, type = "class")
+
+print(pred.final)
+```
 
