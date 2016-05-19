@@ -104,6 +104,7 @@ img {
 <h1>Executive Summary</h1>
 <p>In this report I experimented with two machine learning algorithms to train my model: <em>decision trees</em> and <em>random forest</em>. I started with decision trees because it is straighforward and easy to understand. I evaluated decision trees with two different functions: the <code>train()</code> function and the <code>rpart()</code> function. Surprisingly, there was a significant difference between the two decision tree functions.</p>
 <table>
+<caption>Decision Tree</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -129,6 +130,7 @@ img {
 </table>
 <p>In an effort to improve the model I tried a random forest machine learning algorithm. Random forests are versatile, robust and accurate algorithms capable of performing both regression and classification tasks. The differnce between the <code>train()</code> and <code>randomForest()</code> functions were miniscule.</p>
 <table>
+<caption>Random Forests</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -152,7 +154,7 @@ img {
 </tr>
 </tbody>
 </table>
-<p>I decided to use the random forest algorithm with the train() function to predict the twenty test cases provided by the class. The final result predicted all twenty exercises classes correctly.</p>
+<p>The two random forest models performed very well but unfortunately the <code>train()</code> function model incorrectly misclassified several of the classes on the testing data set. The <code>randomForest()</code> function model classified all twenty of the testing classes correctly. Below is the output for the final correct random forest model.</p>
 <table>
 <caption>Final Prediction</caption>
 <thead>
@@ -233,7 +235,11 @@ img {
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data Processing</h1>
-<p>add commentary …..</p>
+<p>Both the training and testing data sets come from <a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a>.<br />
+In this section I:<br />
+1. Load all necessary R packages<br />
+2. Download the two csv files from the internet<br />
+3. Load the files into R</p>
 <pre class="r"><code>## Load Library Packages
 library(ggplot2)
 library(dplyr)
@@ -274,11 +280,12 @@ training &lt;- read.csv(trainingPath, header = TRUE, sep = &quot;,&quot;, na.str
                      stringsAsFactors = TRUE)
 testing &lt;- read.csv(testingPath, header = TRUE, sep = &quot;,&quot;, na.strings = c(&quot;&quot;, &quot;NA&quot;), fill = TRUE,
                     stringsAsFactors = TRUE)</code></pre>
+<p>Note: When loading the csv files into R note the <code>na.strings = c(&quot;&quot;, &quot;NA&quot;)</code> parameter. This is important because the data has a lot of blank values. Converting all blank (<code>&quot;&quot;</code>) values into <code>NA</code>s allows me to use the <code>is.na()</code> function to remove them in the <strong>Data Transformation</strong> section.</p>
 <hr />
 </div>
 <div id="exploratory-data-analysis" class="section level1">
 <h1>Exploratory Data Analysis</h1>
-<p>Use glimpse() function from the dplyr package to inspect data. I did not include output for report brevity.</p>
+<p>Use <code>glimpse()</code> function from the <code>dplyr</code> package to inspect data. I did not include the output for report brevity.</p>
 <pre class="r"><code>glimpse(training)</code></pre>
 <pre class="r"><code>## Find number of subjects and classes
 table(training[, c(&quot;user_name&quot;, &quot;classe&quot;)])</code></pre>
@@ -291,13 +298,15 @@ table(training[, c(&quot;user_name&quot;, &quot;classe&quot;)])</code></pre>
 ##   jeremy   1177  489  652  522  562
 ##   pedro     640  505  499  469  497</code></pre>
 <blockquote>
-<p>Analysis:</p>
+<p>Analysis:<br />
+After careful inspection of the data I observe six participants (<code>adelmo, carlitos, charles, eurico, jeremy, pedro</code>) and five different exercise classes (<code>A, B, C, D, E</code>). The <code>classe</code> variable corresponds to the type of excercise performed. I will use this variable to predict on. There are many columns with values either entirely or the majority <code>NA</code>. These columns will need to be removed because they do not contribute to my machine leanring models.</p>
 </blockquote>
 <hr />
 </div>
 <div id="data-transformation" class="section level1">
 <h1>Data Transformation</h1>
-<p>add commentary ….</p>
+<p>I partition the training data set using random subsampling into a <code>myTraining</code> and <code>myTesting</code> data set with 70% going to <code>myTraining</code> and the other 30% going to <code>myTesting</code>. I will train my machine learning models with the <code>myTraining</code> set and evaluate/test them on the <code>myTesting</code>. The <code>testing</code> data set will be used for the final prediction.</p>
+<p>Next, I find all columns in the <code>myTraining</code> and <code>myTesting</code> data sets that are majority <code>NA</code> and remove those columns. They will not add anything to the models. I perform the exact same mechanics to the provided <code>testing</code> data set.</p>
 <pre class="r"><code>### Partioning the training set
 indexTrain &lt;- createDataPartition(y = training$classe, p = 0.7, list = FALSE)
 myTraining &lt;- training[indexTrain, ]
@@ -359,7 +368,7 @@ dim(myTraining)</code></pre>
 <pre><code>## [1] 5885   59</code></pre>
 <pre class="r"><code>dim(testing)</code></pre>
 <pre><code>## [1] 20 59</code></pre>
-<p>add commentary …</p>
+<p>I ran into an issue when performing prediction of the <code>testing</code> data set. To remedy the problem I had to manually coerce the levels of the <code>testing</code> data set to that of the <code>myTraining</code> data set. Apparently the column names, levels, and type must be exactly the same between two data sets when using the <code>predict()</code> function. See below for the code.</p>
 <pre class="r"><code>common &lt;- intersect(names(myTraining), names(testing))
 for (p in common) {
     if (class(myTraining[[p]]) == &quot;factor&quot;) {
@@ -367,7 +376,8 @@ for (p in common) {
     }
 }</code></pre>
 <blockquote>
-<p>Analysis:</p>
+<p>Analysis:<br />
+Now all three data sets are set up equally and ready for machine learing.</p>
 </blockquote>
 <hr />
 </div>
@@ -458,7 +468,8 @@ confusionMatrix(pred.rf.train, myTesting$classe)$overall</code></pre>
 ## AccuracyPValue  McnemarPValue 
 ##      0.0000000            NaN</code></pre>
 <blockquote>
-<p>Analysis:</p>
+<p>Analysis:<br />
+The random forest <code>train()</code> function is vastly superior than the decision tree model. It only misclassified 4 classes and had an accuracy of 99.93%. Let see how the <code>randomForest()</code> function performs.</p>
 </blockquote>
 </div>
 <div id="using-the-randomforest-function" class="section level3">
@@ -484,18 +495,26 @@ confusionMatrix(pred.rf.randFor, myTesting$classe)$overall</code></pre>
 ##      0.0000000            NaN</code></pre>
 <blockquote>
 <p>Analysis:<br />
-… The <em>accuracy percent change</em> from the random forest <code>train()</code> function to the <code>randomForest()</code> function was <code>-0.0003398471%</code>.</p>
+The <code>randomForest()</code> performed very well with 6 misclassification and an accuracy of 99.90%. The <em>accuracy percent change</em> from the random forest <code>train()</code> function to the <code>randomForest()</code> function was <code>-0.0003398471%</code>.</p>
 </blockquote>
+<hr />
 </div>
 </div>
 <div id="final-prediction-testing" class="section level1">
 <h1>Final Prediction: Testing</h1>
-<pre class="r"><code>pred.final &lt;- predict(modelRandFor, newdata = testing, type = &quot;class&quot;)
-
-print(pred.final)</code></pre>
+<p>The random forest machine model was vastly superior to the decision trees model. And the two random forest models performed essentially the same.<br />
+However, when it came to actually predicting on the <code>testing</code> data set the <code>train()</code> misclassified several of the classes.</p>
+<pre class="r"><code>pred.final.tr &lt;- predict(rf.model, newdata = testing)
+print(pred.final.tr)</code></pre>
+<pre><code>##  [1] B A B A A C C B A A B C B A C E A B B B
+## Levels: A B C D E</code></pre>
+<p><strong>The randomForest() function classified all correctly.</strong></p>
+<pre class="r"><code>pred.final.rf &lt;- predict(modelRandFor, newdata = testing, type = &quot;class&quot;)
+print(pred.final.rf)</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
 ##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
 ## Levels: A B C D E</code></pre>
+<hr />
 </div>
 
 
