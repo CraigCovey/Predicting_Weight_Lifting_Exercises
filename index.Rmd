@@ -40,31 +40,30 @@ knitr::opts_chunk$set(cache = TRUE)
 ```
 
 #Overview
-One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify _how well_ they do it. In this project, I will use machine learning and data from accelerometers on the belt, forearm, arm, and dumbell to predict the manner in which they did the exercise. Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: one was the correct exercise while the other four classes correspond to common mistakes.
-More information on the dataset and experiment can be found [here](http://groupware.les.inf.puc-rio.br/har): see the section on the Weight Lifting Exercise Dataset. This report will use the R programming language for all machine learning applications.  
+One thing that people regularly do is quantify _how much_ of a particular activity they do, but they rarely quantify _how well_ they do it. Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: one was the correct exercise while the other four classes correspond to common mistakes. In this project, I will use machine learning and data from accelerometers on the belt, forearm, arm, and dumbell to predict the manner in which they did the exercise. This report will use the R programming language for all machine learning applications. More information on the dataset and experiment can be found [here](http://groupware.les.inf.puc-rio.br/har): see the section on the Weight Lifting Exercise Dataset.
 ![sensors](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png) 
 
 #Executive Summary
-In this report I experimented with two machine learning algorithms to train my model: _decision trees_ and _random forest_. I started with decision trees because it is straighforward and easy to understand. I evaluated decision trees with two different functions: the `train()` function and the `rpart()` function. Surprisingly, there was a significant difference between the two decision tree functions.
+In this report I experimented with two machine learning algorithms to train my model: _decision trees_ and _random forest_. I started with decision trees because it is straighforward and easy to understand. I evaluated the decision trees algorithm using two different functions: the `train()` function and the `rpart()` function. Surprisingly, there was a significant difference between the two decision tree functions.
 ```{r, eval=TRUE, echo=FALSE}
-table_1 <- matrix(c(2942, 5885, 0.49992, 5092, 5885, 0.8652506), ncol = 3, byrow = TRUE)
+table_1 <- matrix(c(2942, 5885, 0.49244, 5092, 5885, 0.8737468), ncol = 3, byrow = TRUE)
 colnames(table_1) <- c("Correct", "Total", "Accuracy")
 rownames(table_1) <- c("train()", "rpart()")
 table_1 <- as.table(table_1)
 kable(table_1, caption = "Decision Tree")
 ```
 
-In an effort to improve the model I tried a random forest machine learning algorithm. Random forests are versatile, robust and accurate algorithms capable of performing both regression and classification tasks. The differnce between the `train()` and `randomForest()` functions were miniscule.
+In an effort to improve the model I next tried a random forest machine learning algorithm. Random forests are versatile, robust and accurate algorithms capable of performing both regression and classification tasks. The differnce between the `train()` and `randomForest()` functions were miniscule.
 
 ```{r, eval=TRUE, echo=FALSE}
-table_2 <- matrix(c(5881, 5885, 0.9993203, 5879, 5885, 0.9989805), ncol = 3, byrow = TRUE)
+table_2 <- matrix(c(5881, 5885, 0.9989805, 5879, 5885, 0.9979609), ncol = 3, byrow = TRUE)
 colnames(table_2) <- c("Correct", "Total", "Accuracy")
 rownames(table_2) <- c("train()", "rpart()")
 table_2 <- as.table(table_2)
 kable(table_2, caption = "Random Forests")
 ```
 
-The two random forest models performed very well but unfortunately the `train()` function model incorrectly misclassified several of the classes on the testing data set. The `randomForest()` function model classified all twenty of the testing classes correctly. Below is the output for the final correct random forest model.
+The two random forest models performed very well, but unfortunately the `train()` function model incorrectly classified several of the classes on the testing data set. The `randomForest()` function model classified all twenty of the testing classes correctly. Below is the output for the final correct random forest model.
 
 ```{r, eval=TRUE, echo=FALSE}
 table_3 <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, "B",  "A",  "B",  "A",  "A",  "E",  "D",  "B",  "A",  "A",  "B",  "C",  "B",  "A",  "E",  "E",  "A",  "B",  "B",  "B"), ncol = 20, byrow = TRUE)
@@ -81,7 +80,7 @@ kable(table_3, caption = "Final Prediction")
 Both the training and testing data sets come from http://groupware.les.inf.puc-rio.br/har.  
 In this section I:  
 1. Load all necessary R packages  
-2. Download the two csv files from the internet  
+2. Download the two CSV files from the internet  
 3. Load the files into R  
 ```{r, eval=TRUE}
 ## Load Library Packages
@@ -126,13 +125,13 @@ testing <- read.csv(testingPath, header = TRUE, sep = ",", na.strings = c("", "N
                     stringsAsFactors = TRUE)
 ```
 
-Note: When loading the csv files into R note the `na.strings = c("", "NA")` parameter. This is important because the data has a lot of blank values. Converting all blank (`""`) values into `NA`s allows me to use the `is.na()` function to remove them in the **Data Transformation** section.
+Note: When loading the CSV files into R with `read.csv` note the `na.strings = c("", "NA")` parameter. This is important because the data has a lot of blank values. Converting all blank (`""`) values into `NA`s allows me to use the `is.na()` function to remove them in the **Data Transformation** section.
 
 ***
 
 #Exploratory Data Analysis
 
-Use `glimpse()` function from the `dplyr` package to inspect data. I did not include the output for report brevity.
+Use the `glimpse()` function from the `dplyr` package to inspect the data. [I did not include the output for report brevity.]
 ```{r, eval=FALSE}
 glimpse(training)
 ```
@@ -141,13 +140,13 @@ glimpse(training)
 table(training[, c("user_name", "classe")])
 ```
 > Analysis:  
-> After careful inspection of the data I observe six participants (`adelmo, carlitos, charles, eurico, jeremy, pedro`) and five different exercise classes (`A, B, C, D, E`). The `classe` variable corresponds to the type of excercise performed. I will use this variable to predict on. There are many columns with values either entirely or the majority `NA`. These columns will need to be removed because they do not contribute to my machine leanring models.
+> After careful inspection of the data I observe six participants (`adelmo, carlitos, charles, eurico, jeremy, pedro`) and five different exercise classes (`A, B, C, D, E`). The `classe` variable corresponds to the type of excercise performed. I will use this variable to predict on. There are many columns with values either entirely or the majority `NA`. These columns will need to be removed because they do not contribute to the machine leanring models.
 
 ***
 
 #Data Transformation
 
-I partition the training data set using random subsampling into a `myTraining` and `myTesting` data set with 70% going to `myTraining` and the other 30% going to `myTesting`. I will train my machine learning models with the `myTraining` set and evaluate/test them on the `myTesting`. The `testing` data set will be used for the final prediction. 
+I partition the `training` data set using random subsampling into a `myTraining` and `myTesting` data frame with 70% going to `myTraining` and the other 30% going to `myTesting`. I will train my machine learning models with the `myTraining` set and evaluate/test them on the `myTesting`. The `testing` data set will be used for the final prediction. 
   
 Next, I find all columns in the `myTraining` and `myTesting` data sets that are majority `NA` and remove those columns. They will not add anything to the models. I perform the exact same mechanics to the provided `testing` data set.
 
