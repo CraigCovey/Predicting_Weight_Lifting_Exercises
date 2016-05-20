@@ -41,7 +41,7 @@ knitr::opts_chunk$set(cache = TRUE)
 
 #Overview
 One thing that people regularly do is quantify _how much_ of a particular activity they do, but they rarely quantify _how well_ they do it. Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: one was the correct exercise while the other four classes correspond to common mistakes. In this project, I will use machine learning and data from accelerometers on the belt, forearm, arm, and dumbell to predict the manner in which they did the exercise. This report will use the R programming language for all machine learning applications. More information on the dataset and experiment can be found [here](http://groupware.les.inf.puc-rio.br/har): see the section on the Weight Lifting Exercise Dataset.
-![sensors](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png) 
+![sensors](/Users/Craig/Dropbox/R/Coursera/Machine Learning/Predicting_Weight_Lifting_Exercises/on-body-sensing-schema.png)  
 
 #Executive Summary
 In this report I experimented with two machine learning algorithms to train my model: _decision trees_ and _random forest_. I started with decision trees because it is straighforward and easy to understand. I evaluated the decision trees algorithm using two different functions: the `train()` function and the `rpart()` function. Surprisingly, there was a significant difference between the two decision tree functions.
